@@ -1,0 +1,205 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Product {
+    string name;
+    double price;
+    int stock;
+    string platform;
+
+public:
+    Product(string name, double price, int stock, string platform) {
+        this->name = name;
+        this->price = price;
+        this->stock = stock;
+        this->platform = platform;
+    }
+
+    string get_name() {
+        return name;
+    }
+
+    double get_price() {
+        return price;
+    }
+
+    int get_stock() {
+        return stock;
+    }
+
+    string get_platform() {
+        return platform;
+    }
+
+    void set_price(double price) {
+        this->price = price;
+    }
+
+    void set_stock(int stock) {
+        this->stock = stock;
+    }
+
+    string __str__() {
+        return name + " (" + platform + ") - $" + to_string(price) + " (" + to_string(stock) + " in stock)";
+    }
+};
+
+class User {
+    vector<string> order_history;
+    string fname;
+    string lname;
+    string username;
+    string password;
+    string address;
+    string payment_info;
+
+public:
+    User(string fname, string lname, string username, string password, string address, string payment_info) {
+        this->fname = fname;
+        this->lname = lname;
+        this->username = username;
+        this->password = password;
+        this->address = address;
+        this->payment_info = payment_info;
+    }
+
+    void setFname(string fname) {
+        this->fname = fname;
+    }
+
+    void setLname(string lname) {
+        this->lname = lname;
+    }
+
+    void setUname(string username) {
+        this->username = username;
+    }
+
+    void setPassword(string password) {
+        this->password = password;
+    }
+
+    void setAddress(string address) {
+        this->address = address;
+    }
+
+    void delUser() {
+        // delete user from file
+    }
+
+    void viewHistory() {
+        cout << "Order history for " << fname << " " << lname << ":" << endl;
+        for (string order : order_history) {
+            cout << " - " << order << endl;
+        }
+    }
+
+    string getAddress() {
+        return address;
+    }
+
+    string getUname() {
+        return username;
+    }
+
+    string getPass() {
+        return password;
+    }
+
+    void add_order(string order) {
+        order_history.push_back(order);
+        // append order to user's file
+    }
+};
+
+class Cart {
+    vector<Product*> items;
+
+public:
+    void addItem(Product* item) {
+        items.push_back(item);
+    }
+
+    void removeItem(Product* item) {
+        items.erase(remove(items.begin(), items.end(), item), items.end());
+    }
+
+    void clearCart() {
+        items.clear();
+    }
+
+    const vector<Product*>& getItems() {
+        return items;
+    }
+
+    double getTotal() {
+        double total = 0;
+        for (Product* item : items) {
+            total += item->get_price();
+        }
+        return total;
+    }
+};
+
+
+class Checkout {
+private:
+    std::vector<Product*> items;
+    double total;
+    double tax;
+
+public:
+    Checkout() {
+        total = 0;
+        tax = 0;
+    }
+
+    void scan(Product* item) {
+        items.push_back(item);
+        total += item->get_price();
+    }
+
+    void removeItem(int index) {
+        if (index >= 0 && index < items.size()) {
+            total -= items[index]->get_price();
+            items.erase(items.begin() + index);
+        }
+    }
+
+    double calculateTotal() {
+        return total;
+    }
+
+    double calculateTax() {
+        tax = total * 0.13; // Ontario HST tax rate of 13%
+        return tax;
+    }
+
+    bool checkout(Payment* payment) {
+        double grandTotal = total + tax;
+
+        if (payment->processPayment(grandTotal)) {
+            // Payment successful, update product stock and order history
+            for (auto item : items) {
+                item->set_stock(item->get_stock() - 1);
+                payment->add_order(item);
+            }
+
+            // Reset cart
+            items.clear();
+            total = 0;
+            tax = 0;
+
+            return true;
+        }
+        else {
+            // Payment failed, do not update anything
+            return false;
+        }
+    }
+};
