@@ -203,3 +203,59 @@ public:
         }
     }
 };
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class DataStorage {
+    string filename;
+
+public:
+    DataStorage(string filename) {
+        this->filename = filename;
+    }
+
+    void loadData(vector<string>& data) {
+        ifstream file(filename);
+        if (file.is_open()) {
+            string line;
+            while (getline(file, line)) {
+                data.push_back(line);
+            }
+            file.close();
+        }
+    }
+
+    void saveData(const vector<string>& data) {
+        ofstream file(filename);
+        if (file.is_open()) {
+            for (const string& line : data) {
+                file << line << endl;
+            }
+            file.close();
+        }
+    }
+};
+
+int main() {
+    // Create an instance of DataStorage and load data from file
+    DataStorage storage("data.txt");
+    vector<string> data;
+    storage.loadData(data);
+
+    // Do something with the data
+    for (const string& line : data) {
+        cout << line << endl;
+    }
+
+    // Save updated data to file
+    data.push_back("New line");
+    storage.saveData(data);
+
+    return 0;
+}
