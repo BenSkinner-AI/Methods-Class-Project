@@ -5,6 +5,75 @@
 #include <iomanip>
 using namespace std;
 
+class User {
+private:
+    int current_login;
+public:
+    User(): current_login(0){};
+
+    int read_file(string file_name, string username, string password) {
+        // Open the file for reading
+        ifstream login_file(file_name);
+        int login = 0;
+        // Check if the file was successfully opened
+        if (login_file.is_open()) {
+            // Read each line of the file and print it to the console
+            string line;
+            while (getline(login_file, line)) {
+                size_t pos = line.find(",");
+                string CompareUsername = line.substr(0, pos);
+                string ComparePassword = line.substr(pos + 1);
+                login++;
+                if (CompareUsername == username && ComparePassword == password)
+                {
+                    current_login = login;
+                    return login;
+                }
+            }
+
+            // Close the file
+            login_file.close();
+        }
+        else
+        {
+            cout << "Error opening file." << endl;
+            return 0;
+        }
+        return 0;
+    }
+
+    void create_accountant(string CreateUsername, string CreatePassword, string CreateAddress, string CreatePayment) {
+        // Open a file for appending new login information
+        ofstream login_file("login_info.txt", ios_base::app);
+        if (login_file.is_open())
+        {
+        cout << "\nEnter desired username:";
+        cin >> CreateUsername;
+        cout << "Enter desired password:";
+        cin >> CreatePassword;
+        cout << "Enter shipping address:";
+        cin.ignore();
+        std::getline(std::cin, CreateAddress);
+        cout << "Enter payment:";
+        cin >> CreatePayment;
+
+        login_file << CreateUsername << "," << CreatePassword << endl;
+        login_file << CreateAddress << "+" << CreatePayment << endl;
+        // Close the file
+        login_file.close();
+        cout << "Accountant login information saved.\n" << endl;
+        }
+        else
+        {
+            cout << "Error creating file." << endl;
+        }
+    }
+
+    void edit_account() {
+    }
+};
+
+
 class ShoppingCart {
 private:
     vector<string> names;
