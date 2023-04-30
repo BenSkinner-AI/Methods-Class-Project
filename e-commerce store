@@ -5,6 +5,139 @@
 #include <iomanip>
 using namespace std;
 
+class ShoppingCart {
+private:
+    vector<string> names;
+    vector<double> prices;
+public:
+    ShoppingCart(){
+
+    }
+
+    std::string add_item(int index) {
+        std::ifstream file("products.txt");
+        if (!file) {
+            throw std::invalid_argument("Error opening file");
+        }
+
+        std::string line;
+        int current_index = 0;
+        while (std::getline(file, line)) {
+            if (current_index == index - 1) {
+                size_t pos = line.find(",");
+                string Game = line.substr(0, pos);
+                string Price= line.substr(pos + 1);
+                names.push_back(Game);
+                prices.push_back(stod(Price));
+                cout<< "\n" << Game << " for $" << Price << " was added to your cart." << endl;
+            }
+                current_index++;
+        }
+    }
+
+    void remove_item(unsigned int index) {
+        if (index < 1 || index > names.size()) {
+            throw std::invalid_argument("Index out of range");
+        }
+        names.erase(names.begin() + index - 1);
+        prices.erase(prices.begin() + index - 1);
+        std::cout << "Item " << index << " has been removed from the cart." << std::endl;
+    }
+
+    void display_items() {
+        if (names.empty()) {
+            std::cout << "Your cart is empty" << std::endl;
+        }
+        else {
+            std::cout << "\nGames in your cart: " << std::endl;
+            double total_price = 0.0;
+            for (unsigned int i = 0; i < names.size(); i++) {
+                std::cout << i+1 << ". " << names[i] << " - $" << prices[i] << std::endl;
+                total_price += prices[i];
+            }
+            std::cout << "Total price: $" << total_price << std::endl;
+        }
+    }
+
+    double get_total_price() const {
+        double total_price = 0.0;
+        for (unsigned int i = 0; i < prices.size(); i++) {
+            total_price += prices[i];
+        }
+        return total_price;
+    }
+
+    void clear_cart() {
+        names.clear();
+        prices.clear();
+    }
+
+    void add_history(){
+
+    }
+
+};
+
+class Checkout {
+private:
+    ShoppingCart& cart; // reference to the ShoppingCart object
+public:
+    Checkout(ShoppingCart& cart) : cart(cart) {}
+    void process_order() {
+        double price = cart.get_total_price();
+        if (price != 0){
+        cart.display_items();
+        double total = price * 1.07;
+        std::cout << "\nYour total after tax is: $" << std::fixed << std::setprecision(2) << total << std::endl;
+        cart.clear_cart();
+        std::cout << "Thank you for shopping!" << std::endl;
+        }
+        else
+        {
+            cout << "\nYou have nothing in your cart to check out." << endl;
+        }
+    }
+};
+
+class Product {
+private:
+
+public:
+    // Default constructor
+    Product() {
+    }
+
+    // Read data from a file
+    void view_products() {
+        // Open the file for reading
+        ifstream product_file("products.txt");
+
+        // Check if the file was successfully opened
+        if (product_file.is_open()) {
+            // Read each line of the file and print it to the console
+            string line;
+            unsigned int i = 1;
+            while (getline(product_file, line)) {
+                size_t pos = line.find(",");
+                string Game = line.substr(0, pos);
+                string Price= line.substr(pos + 1);
+
+                cout << i << ". " << Game << " ($" << Price << ")" << endl;
+                i++;
+            }
+
+            // Close the file
+            product_file.close();
+        }
+        else
+        {
+            cout << "Error opening file." << endl;
+
+        }
+    }
+};
+
+
 int main() {
     User user;
     ShoppingCart cart;
